@@ -1,0 +1,57 @@
+{% extends 'dashboard/base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% load humanize %}
+
+{% load thumbnail %}
+
+
+<!-- Section Page -->
+
+{% block card %}
+
+<div class="card shadow mb-4  col-lg-12 col-xl-12 col-md-12">
+	<div class="card-header py-3">
+		<h6 class="m-0 font-weight-bold text-primary">Recent Assigned Duty's(approved)</h6>
+	</div>
+	<div class="card-body">
+		<div class="table-responsive">
+				{% if assigned_leaves %}
+					<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+					  <thead>
+					    <tr>
+					      <th scope="col">Owner</th>
+					      <th scope="col">PTO Type</th>
+					      <th scope="col">Start Date</th>
+					      <th scope="col">End Date</th>
+					      <th scope="col">Duration (Days)</th>
+					      <th scope="col">Actions</th>
+					    </tr>
+					  </thead>
+					  <tbody>
+						  	{% for assigned_leave in assigned_leaves %}
+							    <tr>
+							      <!-- <th scope="row">sick</th> -->
+							      <td>{{ assigned_leave.owner.get_full_name|capfirst}}</td>
+							      <td>{{ assigned_leave.leave_type }}</td>
+							      <td>{{ assigned_leave.pretty_start_date }}</td>
+							      <td>{{ assigned_leave.pretty_end_date }}</td>
+							      <td>{{ assigned_leave.leave_duration}}</td>
+							      <td><a href="#" title="view assigned leave"><i class="fa fa-eye"></i></a></td>
+							    </tr>
+						    {% endfor %}
+					  </tbody>
+					</table>
+				{% else %}
+					<p>You have not been assigned to any PTO duties.</p>
+				{% endif %}
+			<!-- table ends -->
+		</div>
+	</div>
+</div>
+
+
+{% endblock %}

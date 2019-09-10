@@ -1,0 +1,99 @@
+{% extends 'dashboard/base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% load humanize %}
+
+{% load thumbnail %}
+
+
+
+   {% block message %}
+           <section class="col-xl-8 col-lg-7 mb-2">
+                            {% if  messages %}
+                                    {% for message in messages %}
+                                     <div {% if message.tags %} class="{{ message.tags}} mssg-default"{% endif %}>
+                                         {{ message }}
+                                     </div>
+                                    {% endfor %}
+                            {% endif %}
+           </section>
+   {% endblock %}<!-- end message block -->
+
+	 {% block card %}
+      	 		 <div class="col-xl-8 col-lg-7">
+                    <div class="card shadow mb-4">
+                        <!-- Card Header - Dropdown -->
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                          <h6 class="m-0 font-weight-bold text-primary">PTO Application Form</h6>
+                        </div>
+                        <!-- Card Body -->
+                        <div class="card-body">
+                  					<form action="{% url 'leave:create_leave' %}" method="POST" id="leave_create_form">
+                              {% csrf_token %}
+                  					  {{ form | crispy }}
+                  					  <button type="submit" class="btn btn-primary"{% if user.profile.is_exhausted %}
+                               disabled="disabled"
+                              {% endif %}>Apply
+                              </button>
+                  					</form>
+                            
+                        </div>
+                    </div>
+            </div>
+            <!-- Recent Sent Leave(Not yet accepted) -->
+      	 		 <div class="col-xl-4 col-lg-5">
+               <div class="card shadow mb-4">
+                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                          <h6 class="m-0 font-weight-light">Recent Sent PTO (not accepted)</h6>
+                 </div>
+                 <div class="card-body">
+                    {% if recent_leaves %}
+                      {% for recent_leave in recent_leaves %}
+                        <nav aria-label="breadcrumb">
+                          <ol class="breadcrumb">
+                            <p>
+                              You applied for a <span style="font-weight: 600;color:#666;">{{ recent_leave.leave_duration }}</span> days <span style="font-weight: 600;color:#666;">{{recent_leave.leave_type}}</span> PTO.
+                              <span> You are returning on <b>{{ recent_leave.return_leave_date }},({{recent_leave.pretty_day_leave_return}})</b></span>
+                            </p>
+
+                            {% if recent_leave.is_declined %}
+                              <p style="color:red;font-weight:400;">
+                                pto not accepted by assigned staff
+                                click 
+                              <a href="{% url 'leave:edit_leave_by_owner' recent_leave.id %}">here</a> to assign a different staff.
+                              </p>
+                            {% elif recent_leave.head_declined %}
+                               <p style="color: red;">
+                                your pto has been declined by {{ recent_leave.dept_head.profile.get_full_name }}(head of department).
+                                <a href="{% url 'leave:edit_leave_by_owner' recent_leave.id %}">here</a> to make changes.
+                               </p>
+                            {% else %}
+                               <p>
+                              Please,tell {{ recent_leave.accepted_by.profile.get_full_name|capfirst }}({{recent_leave.accepted_by.username}}) to accept. click 
+                              <a href="{% url 'leave:edit_leave_by_owner' recent_leave.id %}">here</a> to view or edit PTO.
+                               </p>
+                            {% endif %}
+
+                          </ol>
+                          <p style="font-size: 12px;">{{recent_leave.created | naturaltime }}</p>
+                            <form action="{% url 'leave:edit_delete_leave' recent_leave.id %}" method="POST" class="mb-4">
+                              {% csrf_token %}
+                              <button class="btn btn-danger" name="delete" onclick="return confirm_delete()">
+                                <i class="fa fa-trash"></i>
+                              </button>
+                            </form>
+                            
+                        </nav>
+                      {% endfor %}
+                      {% else %}
+                       <span style="font-weight: 100;color:#666;">You have no PTO.</span>
+                    {% endif %}
+
+                 </div>
+               </div>
+             </div>
+
+	 {% endblock %}

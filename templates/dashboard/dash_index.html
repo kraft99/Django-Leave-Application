@@ -1,0 +1,340 @@
+{% extends 'dashboard/base.html' %}
+
+{% load static %}
+
+{% load humanize %}
+
+{% load thumbnail %}
+
+<!-- Extra Css -->
+{% block style %}
+<style type="text/css">
+  
+  div > span#no-notification-span{
+      width: inherit;
+      box-sizing: border-box;
+      padding: 1em;
+      text-align: left;
+      display: inline-block;
+  }
+
+  .days-remain{
+    font-size: 3.4em;
+    font-weight: 600;
+    padding-right: 2px;
+  }
+
+  .days-title{
+    font-weight: 100;
+    color: #999;
+  }
+
+  .fa{
+    transition:all 1s cubic-bezier(0.82, 0.04, 0.24, 0.91);
+  }
+
+  .fa:hover{
+    transform: scale(1.2);
+ 
+  }
+
+</style>
+{% endblock %}
+<!-- /Extra Css -->
+{% block notification %}
+<!-- Notification button -->
+             <!-- Nav Item - Alerts -->
+            <li class="nav-item dropdown no-arrow mx-1">
+              <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-bell"></i>
+                <!-- Counter - Alerts -->
+                <span class="badge badge-danger badge-counter">{{ notification.count }}</span>
+              </a>
+              <!-- Dropdown - Alerts -->
+                  <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
+                    <h6 class="dropdown-header">
+                      {% if request.user.is_superuser %}Pending{% else %} Assigned(Unaccepted){% endif %} PTO{{notification.count|pluralize}}
+                    </h6>
+                    {% if notification %}
+                      {% for leave_obj in notification %}
+                        <a class="dropdown-item d-flex align-items-center" 
+                        {% if request.user.is_superuser %}href="{% url 'leave:pending_leave' leave_obj.id %}"
+                        {% endif %}
+                          href="{% url 'leave:unattended' leave_obj.id %}">
+                            <div class="mr-3">
+                                {% if leave_obj.owner.pic %}
+                                  {% thumbnail leave_obj.owner.pic "50" as img %}
+                                    <img class="img-profile rounded-circle icon-circle" src="{{img.url}}">
+                                  {% endthumbnail%}
+                                {% else %}
+                                    <img class="img-profile rounded-circle" src="{% static 'img/avatar/avatar.png' %}">
+                                {% endif %}
+                            </div>
+                            <div>
+                              <div class="small text-gray-500">{{ leave_obj.created|naturaltime }}</div>
+                              <span class="font-weight-bold">{{ leave_obj.leave_type }}</span>
+                              <p class="font-weight-bold" style="font-size: 1.0rem;
+                                  font-weight: 100 !important;">{{ leave_obj.owner.get_full_name|capfirst }}
+                              </p>
+                            </div>
+                        </a>
+                      {% endfor %}
+                      {% else %}
+                          <span id="no-notification-span">No {%if request.user.is_superuser %}pending{% else %}assigned
+                          {% endif %} PTOs
+                          </span>
+                      {% endif %}
+                    <!-- <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a> -->
+                  </div>
+            </li>
+
+      <!-- Head of Department Only -->
+      {% if request.user.profile.is_head %}
+            <li class="nav-item dropdown no-arrow mx-1">
+              <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-users"></i>
+                <!-- Counter - Alerts -->
+                <span class="badge badge-danger badge-counter">{{ department_notifications.count }}</span>
+              </a>
+              <!-- Dropdown - Alerts -->
+                  <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
+                    <h6 class="dropdown-header">
+                      Pending PTOs
+                    </h6>
+
+                    {% if department_notifications %}
+                          {% for leave_obj in department_notifications %}
+                            <a class="dropdown-item d-flex align-items-center" href="{% url 'leave:pending_dept_leave' leave_obj.id %}">
+                                <div class="mr-3">
+                                    {% if leave_obj.owner.pic %}
+                                      {% thumbnail leave_obj.owner.pic "50" as img %}
+                                        <img class="img-profile rounded-circle icon-circle" src="{{img.url}}">
+                                      {% endthumbnail%}
+                                    {% else %}
+                                        <img class="img-profile rounded-circle" src="{% static 'img/avatar/avatar.png' %}">
+                                    {% endif %}
+                                </div>
+                                <div>
+                                  <div class="small text-gray-500">{{ leave_obj.created|naturaltime }}</div>
+                                  <span class="font-weight-bold">{{ leave_obj.leave_type }}</span>
+                                  <p class="font-weight-bold" style="font-size: 1.0rem;
+                                      font-weight: 100 !important;">{{ leave_obj.owner.get_full_name|capfirst }}
+                                  </p>
+                                </div>
+                            </a>
+                          {% endfor %}
+                      {% else %}
+                            <span id="no-notification-span">You have no pending PTOs to approve.</span>
+                      {% endif %}
+                    <!-- <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a> -->
+                  </div>
+            </li>
+            {% endif %}
+
+  {% endblock %}<!-- /Notofication button -->
+          
+          {% block message %}
+              <!-- form messages comes here -> error or success -->
+                 <section class="col-xl-12 col-lg-12 col-sm-12 mb-2">
+                            {% if  messages %}
+                                    {% for message in messages %}
+                                     <div {% if message.tags %} class="{{ message.tags}} mssg-default"{% endif %}>
+                                         {{ message }}
+                                     </div>
+                                    {% endfor %}
+                            {% endif %}
+                  </section>
+          {% endblock %}
+          
+          {% block card %}
+            <!-- Earnings (Monthly) Card Example -->
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">PTOs ({{ month }}) </div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{ month_approved_leaves.count }}</div>
+                      <span style="color: #cdcaca;
+                                  font-weight: 100;
+                                  display: inline-block;">(approved)
+                      </span>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fa fa-calendar fa-3x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Earnings (Monthly) Card Example -->
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-success text-uppercase mb-1">PTO ({{ year }})</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{ year_approved_leaves.count }}</div>
+                      <span style="color: #cdcaca;
+                                  font-weight: 100;
+                                  display: inline-block;">(approved)
+                      </span>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fa fa-calendar fa-3x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {% if request.user.is_superuser %}
+            <!-- Earnings (Monthly) Card Example -->
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Users</div>
+                      <div class="row no-gutters align-items-center">
+                        <div class="col-auto">
+                          <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{users_profiles.count}}</div>
+                        </div>
+                        <div class="col">
+                          <div class="progress progress-sm mr-2">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fa fa-users fa-3x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% else %}
+            <!-- Earnings (Monthly) Card Example -->
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Assigned PTO Duties</div>
+                      <div class="row no-gutters align-items-center">
+                        <div class="col-auto">
+                          <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{assigned_leaves.count}}</div>
+                        </div>
+                        <div class="col">
+                          <div class="progress progress-sm mr-2">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                          </div>
+                        </div>
+                      </div>
+                        <span style="color: #cdcaca;
+                                  font-weight: 100;
+                                  display: inline-block;">(accepted)
+                        </span>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fa fa-users fa-3x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {% endif %}
+
+            <!-- Pending Requests Card Example -->
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending PTO{{ pending_leaves.count|pluralize }}</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{ pending_leaves.count }}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fa fa-comments fa-3x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Content Row -->
+ {% endblock %}
+
+<!-- Content -->
+ {% block content %}
+
+   {% if not request.user.is_superuser %}
+         <div class="row">    
+                  <div class="col-xl-3 col-md-6 mb-4">
+                      <div class="card shadow mb-4">
+                        <div class="card">
+                          <div class="card-body">
+                            <p class="card-text text-center text-uppercase"><span class="days-remain">{{ request.user.profile.assign_days}}</span><span class="days-title">days</span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+    
+
+         {% if request.user.profile.users_pending_leave %}
+
+                   {% for leave in request.user.profile.users_pending_leave %}
+                              <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 mb-4">
+                                  <div class="card  border-left-info shadow mb-4">
+                                    <div class="card">
+                                      <div class="card-body">
+                                        <div class="card-text text-uppercase">
+                                            <h6 class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            PTO in Processing
+                                            </h6>
+                                        </div>
+                                        <div>
+                                          <p>(leave type : <b>{{ leave.leave_type }} Leave<b>)</p>
+                                        </div>
+                                        <div class="card-text">
+                                          {% if leave.accepted_by %}
+                                            <p>{{ leave.accepted_by.profile.get_full_name }} has accepted pto duties.</p>
+                                          {% endif %}
+
+                                          <!-- heads declined -->
+                                          {% if leave.dept_head %}
+                                            <p>{{ leave.dept_head }}
+                                              (<i style="font-size: 14px;">head of department</i>) has approved
+                                            </p>
+                                          {% elif leave.head_declined %}
+                                            <p style="font-style: italic;font-size:14px;color:#d80000;">(declined by head of department.)</p>
+                                          {% else %}
+                                              <p style="font-style: italic;font-size:14px;color:#d80000;">(waiting for head of department approval)</p>
+                                          {% endif %}
+                                          <!-- /heads declined -->
+
+                                          {% if not leave.is_approved %}
+                                            <p style="font-style: italic;font-size:14px;color:#d80000;">(waiting for admin approval)</p>
+                                          {% endif %}
+                                          <span style="font-size:13px;font-style: italic;">
+                                          {leave will disappear after admin approves or cancels.(please,verify leave in (recent)approve table).}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                              </div>
+                   {% endfor %}
+
+         {% endif %}<!--/if request.user.profile.users_pending_leave  -->
+
+        </div><!-- /Row /if not request.user.is_superuser -->
+
+     {% endif %}<!-- /if not request.user.is_superuser-->
+ {% endblock %}
+
+<!-- /Content -->

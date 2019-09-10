@@ -1,0 +1,109 @@
+{% extends 'dashboard/base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% load humanize %}
+
+{% load thumbnail %}
+
+
+{% block style %}
+<style type="text/css">
+  
+.icon-circle-override{
+    height: 4.5rem !important;
+    width: 4.5rem !important;
+}
+
+
+</style>
+{% endblock %}
+
+
+{% block card %}
+			<!-- leave Details -->
+	      	<div class="col-xl-9 col-lg-7">
+                    <div class="card shadow mb-4">
+                        <!-- Card Header - Dropdown -->
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                          <h6 class="m-0 font-weight-bold text-primary">PTO Details</h6>
+                        </div>
+                        <!-- Card Body -->
+                        <div class="card-body">
+                            <!-- Profile -->
+                                    <div>
+                                      <h6>Personal Detail</h6>
+                                    </div>
+                                    <div class="row"><!-- row -->
+                                          <div class="col-xl-4">
+                                              <div class="mb-4 mr-3">
+                                                  {% if leave_obj.owner.pic %}
+                                                    {% thumbnail leave_obj.owner.pic "100" as img %}
+                                                      <img class="img-profile rounded-circle icon-circle icon-circle-override" src="{{img.url}}">
+                                                      {% endthumbnail%}
+                                                  {% else %}
+                                                      <img class="img-profile rounded-circle" src="{% static 'img/avatar/avatar.png' %}">
+                                                  {% endif %}
+                                              </div>
+                                          </div>
+                                          <div class="col-xl-8">
+                                              <p class="font-weight-bold" style="font-size: 1.0rem;
+                                                font-weight: 100 !important;"><i class="fa fa-user"></i> 
+                                                {{ leave_obj.owner.get_full_name|capfirst }}
+                                              </p>
+
+                                              {% if leave_obj.owner.user.email %}
+                                                <p>
+                                                  <i class="fa fa-envelope"></i>
+                                                  {{leave_obj.owner.user.email}}
+                                                </p>
+                                              {% endif %}
+                                          </div>
+                                    </div><!-- /row -->
+                                    <!-- leave detail row -->
+                                      <div>
+                                        <h6>PTO Detail</h6>
+                                      </div>
+                                    <div class="row">
+                                      <div class="col-xl-6 col-lg-6 mb-4 mr-3">
+                                        <p>Type : {{ leave_obj.leave_type|capfirst }} Leave</p>
+                                        <p>Start Date : {{leave_obj.pretty_start_date }}</p>
+                                        <p>End Date : {{leave_obj.pretty_end_date }}</p>
+                                        <p>Duration(days) : {{ leave_obj.leave_duration }}</p>
+                                      </div>
+                                      <div class="col-xl-6">
+                                        <p>Assign Duties
+                                          {{ leave_obj.duty }}
+                                        </p>
+                                        {% if leave_ob.report_to %}
+                                        <p>Report To : {{leave_ob.report_to|capfirst}</p>
+                                        {% endif %}
+                                      </div>
+                                    </div>
+                                    <!-- /leave detail row -->
+                            <!-- /Profile -->
+                        </div><!-- /card body -->
+                  </div>
+          </div>
+
+
+
+            <!-- Actions -->
+            <div class="col-xl-3 col-lg-5">
+               <div class="card shadow mb-4">
+                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                          <h6 class="m-0 font-weight-light">Action</h6>
+                 </div>
+                 <div class="card-body">
+                 	<form action="{% url 'leave:leave_action' leave_obj.id %}" method="POST">
+                    {% csrf_token %}
+                    <button class="btn btn-primary mr-4" name="accept" onclick="return confirm_delete()">ACCEPT</button>
+                    <button class="btn btn-danger" name="decline" onclick="return confirm_delete()">DECLINE</button>
+                  </form>
+                 </div>
+               </div>
+             </div>
+
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends 'dashboard/base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% load humanize %}
+
+{% load thumbnail %}
+
+
+{% block style %}
+<style type="text/css">
+  
+.icon-circle-override{
+    height: 4.5rem !important;
+    width: 4.5rem !important;
+}
+
+h6{
+	font-variant: petite-caps;
+	color: #6b6b6b;
+	font-weight: 100;
+}
+
+p{
+	font-size: .9rem;
+    font-variant: petite-caps;
+}
+
+</style>
+{% endblock %}
+
+
+{% block card %}
+			<!-- leave Details -->
+	      	<div class="col-xl-7 col-lg-7">
+                    <div class="card shadow mb-4">
+                        <!-- Card Header - Dropdown -->
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                          <h6 class="m-0 font-weight-bold text-primary">Pending PTO Detail</h6>
+                        </div>
+                        <!-- Card Body -->
+                        <div class="card-body">
+                            <!-- Profile -->
+                                    <div>
+                                      <h6>Personal Detail</h6>
+                                    </div>
+                                    <div class="row"><!-- row -->
+                                          <div class="col-xl-4">
+                                              <div class="mb-4 mr-3">
+                                                  {% if leave_obj.owner.pic %}
+                                                      <img class="img-profile rounded-circle icon-circle icon-circle-override" src="{{leave_obj.owner.pic.url}}">
+                                                  {% endif %}
+                                              </div>
+                                          </div>
+                                          <div class="col-xl-8">
+
+                                          	{% if leave_obj.owner.get_first_last_name %}
+                                          	  <p class="font-weight-bold" style="font-size: 1.0rem;
+                                                font-weight: 100 !important;">Full name :
+                                                {{ leave_obj.owner.get_first_last_name|capfirst }}
+                                              </p>
+                                            {% endif %}
+                                              <p class="font-weight-bold" style="font-size: 1.0rem;
+                                                font-weight: 100 !important;">Department : 
+                                                {{ leave_obj.owner.department|capfirst }}
+                                              </p>
+
+                                              <p class="font-weight-bold" style="font-size: 1.0rem;
+                                                font-weight: 100 !important;">Username : 
+                                                {{ leave_obj.owner.user.username|capfirst }}
+                                              </p>
+
+                                              {% if leave_obj.owner.user.email %}
+                                                <p>
+                                                  <i class="fa fa-envelope"></i>
+                                                  {{leave_obj.owner.user.email}}
+                                                </p>
+                                              {% endif %}
+                                              <p class="font-weight-bold" style="font-size: 1.0rem;
+                                                font-weight: 100 !important;">
+                                                Leave Days(remaining leave days) : {{leave_obj.owner.assign_days}}
+                                              </p>
+                                              
+
+                                          </div>
+                                    </div><!-- /row -->
+                                    <hr>
+                                    <!-- leave detail row -->
+                                      <div>
+                                        <h6>PTO Detail</h6>
+                                      </div>
+                                    <div class="row">
+                                     <!-- LEFT -->
+                                      <div class="col-xl-4">
+                                        <p>Type : {{ leave_obj.leave_type|capfirst }} Leave</p>
+                                        <p>Start Date : {{leave_obj.pretty_start_date }}</p>
+                                        <p>End Date : {{leave_obj.pretty_end_date }}</p>
+                                        <p>Duration(days) : {{ leave_obj.leave_duration }}</p>
+                                        <p>Return Date : {{ leave_obj.return_leave_date }},
+                                          ({{ leave_obj.pretty_day_leave_return }})
+                                        </p>
+                                      </div>
+                                      <!-- RIGHT -->
+                                      <div class="col-xl-8">
+                                        <p>Assign Duties
+                                          : {{ leave_obj.duty }}
+                                        </p>
+                                        <p>
+                                        	Duties Assigned To:
+                                        	{{ leave_obj.accepted_by.profile.get_full_name|capfirst}}
+                                        </p>
+
+                                        {% if leave_obj.get_reported_supervisor %}
+                                         <p>Report To: {{leave_obj.report_to|capfirst}}</p>
+                                        {% endif %}
+
+                                        <p style="color: green;font-weight: 600;">
+                                         {% if leave_obj.is_accepted %}Accepted{% endif %} by {{leave_obj.accepted_by.profile.get_full_name}}
+                                    	  </p>
+
+                                         <p style="color: green;font-weight: 600;">
+                                         {% if leave_obj.is_accepted %}Approved{% endif %} by {{leave_obj.dept_head.profile.get_full_name}}(head of {{leave_obj.dept_head.profile.department}} department)
+
+                                        </p>
+                                    	<p>
+                                    		<i class="fa fa-calendar"></i> {{ leave_obj.created}}
+                                    	</p>
+                                      </div>
+                                    </div> <!-- /leave detail row -->
+                            <!-- /Profile -->
+                        </div><!-- /card body -->
+                  </div>
+          </div>
+
+
+
+            <!-- Actions -->
+            <div class="col-xl-5 col-lg-5">
+               <div class="card shadow mb-4">
+                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                          <h6 class="m-0 font-weight-light">Actions</h6>
+                 </div>
+                 <div class="card-body">
+                 	<form action="" method="POST">
+                    {% csrf_token %}
+                    <button class="btn btn-primary" name="approve" onclick="return confirm_delete()">APPROVE</button>
+                    <button class="btn btn-warning" name="cancel"  onclick="return confirm_delete()">CANCEL</button>
+                    <!-- <button class="btn btn-info" name="edit"  onclick="return confirm_delete()">EDIT</button> -->
+                  </form>
+                 </div>
+               </div>
+             </div>
+
+{% endblock %}

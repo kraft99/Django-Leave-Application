@@ -1,0 +1,129 @@
+{% extends 'dashboard/base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% load humanize %}
+
+{% load thumbnail %}
+
+
+{% block style %}
+<style type="text/css">
+
+	p,h5,span{
+		font-variant: petite-caps;
+	}
+
+  h5{
+
+    font-size: 2.3em;
+    font-weight: bolder;
+    color: #0e0e0e;
+  }
+
+</style>
+{% endblock %}
+
+{% block message %}
+           <section class="col-xl-12 col-lg-12 mb-2">
+                            {% if  messages %}
+                                    {% for message in messages %}
+                                     <div {% if message.tags %} class="{{ message.tags}} mssg-default text-center"{% endif %}>
+                                         {{ message }}
+                                     </div>
+                                    {% endfor %}
+                            {% endif %}
+           </section>
+{% endblock %}<!-- end message block -->
+
+
+{% block searchform %}
+ <div class="row">
+   <div class="col-lg-12 col-md-12 col-sm-12">
+    <form class="mb-4 col-lg-6 col-xl-6 mx-auto" action="{% url 'account:users' %}" method="GET">
+      {% csrf_token %}
+      <input class="form-control mr-sm-2" name="search" value="{{ request.GET.search }}" type="search" placeholder="l 'm searching for ..." aria-label="Search">
+    </form>
+    </div>
+  </div>
+{% endblock %}
+
+{% block card %}
+
+  {% for user_obj in users %}
+        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12  mb-2">
+              <div class="card bg-light mb-3 text-center shadow" >
+                    {% if user_obj.profile.pic %}
+                        <img class="img-profile rounded-circle icon-circle mx-auto mt-1" 
+                                    src="{{user_obj.profile.pic.url}}" 
+                                    style="width:6.5rem;height: 6.5rem;"
+                                    >
+                    {% endif %}
+                  <div class="card-body">
+                    {% if user_obj.profile.get_first_last_name %}
+                    <p class="card-title">{{ user_obj.profile.get_full_name }}</p>
+                    {% endif %}
+
+                    <p class="card-title">({{ user_obj.username }})</p>
+
+                    {% if user_obj.profile.email %}
+                    <p class="card-title">{{ user_obj.profile.email }}</p>
+                    {% endif %}
+
+                    {% if not user_obj.is_superuser %}
+                      <div class="card-text">
+
+                         <div><h5>{{user_obj.profile.assign_days }}</h5>
+                              <span class="mb-1">Days remaining</span>
+                        </div>
+
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div class="card-footer">
+                  {% if not user_obj.is_superuser %}
+                    <small class="text-muted">
+                     <a href="{% url 'account:delete_user' user_obj.username %}" onclick="return confirm_delete()" class="mr-4 btn btn-danger" title="delete user" style="background-color: #ff9a91;border-color: #ff9a91;">
+                      <i class="fa fa-trash"></i>
+                     </a>
+                     <a href="{% url 'account:staff_profile_view' user_obj.username %}" title="view user detail" class="btn btn-info" style="background-color: #90dfea;border-color: #90dfea;">
+                      <i class="fa fa-eye"></i>
+                     </a>
+                    </small>
+                  {% else %}
+                   <small class="text-muted">ADMIN</small>
+                  {% endif %}
+                  </div>
+              </div>
+        </div>
+  {% endfor %}
+
+{% endblock %}
+
+{% block paginate %}
+<div class="container-fluid">
+    <div class="row">
+          <div class="col-lg-12 col-xl-12">
+            <div class="pagination navigation justify-content-center"><!-- ul from bootstrap -->
+                <span class="step-links">
+                    {% if users.has_previous %}
+                        <a href="?page=1">&laquo; first</a>
+                        <a href="?page={{ users.previous_page_number }}">previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ users.number }} of {{ users.paginator.num_pages }}.
+                    </span>
+
+                    {% if users.has_next %}
+                        <a href="?page={{ users.next_page_number }}" class="">next</a>
+                        <a href="?page={{ users.paginator.num_pages }}" class="">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div><!-- /ul from boostrap (List) -->
+        </div>
+    </div>
+</div>
+{% endblock %}

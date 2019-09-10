@@ -1,0 +1,122 @@
+{% extends 'dashboard/base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% load humanize %}
+
+{% load thumbnail %}
+
+
+<!-- Section Page -->
+
+{% block card %}
+
+<!-- table card wrapper -->
+<div class="card shadow mb-4  col-lg-12 col-xl-12 col-md-12">
+	<div class="card-header py-3">
+		<h6 class="m-0 font-weight-bold text-primary">Recent Approved PTOs</h6>
+	</div>
+	<div class="card-body">
+		<div class="table-responsive">
+				<!-- admin table starts -->
+				{% if request.user.is_superuser %}
+				<!-- Admin view -->
+				{% if leaves_approved %}
+					<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+					  <thead>
+					    <tr>
+					      <th scope="col">PTO Type</th>
+					      <th scope="col">Owner</th>
+					      <th scope="col">Assigned To</th>
+					      <th scope="col">Start Date</th>
+					      <th scope="col">End Date</th>
+					      <th scope="col">Return Date</th>
+					      <th scope="col">Duration(Days)</th>
+					      <th scope="col">Actions</th>
+					    </tr>
+					  </thead>
+					  <tbody>
+					  	{% for leave_approved in leaves_approved %}
+					    <tr>
+					      <td scope="row">
+					      	<a href="#">{{ leave_approved.leave_type }}
+					      	</a>
+					      </td>
+					      <td>{{ leave_approved.owner.get_full_name|capfirst }}</td>
+					      <td>{{ leave_approved.accepted_by.profile.get_full_name|capfirst }}</td>
+					      <td>{{ leave_approved.pretty_start_date }}</td>
+					      <td>{{ leave_approved.pretty_end_date }}</td>
+					       <td>  
+							   {{ leave_approved.return_leave_date}},
+							   ({{ leave_approved.pretty_day_leave_return}})
+						   </td>
+					      <td>{{ leave_approved.leave_duration}}</td>
+					      <td>
+					      	<a href="#" title="view leave"><i class="fa fa-eye"></i></a> 
+					      	<span style="padding: 0 .3em;"></span>
+					      	<a href="#" title="delete leave"><i class="fa fa-trash"></i></a>
+					      </td>
+
+					    </tr>
+					    {% endfor %}
+					  </tbody>
+					</table>
+					{% else %}
+						<p>No approved PTOs.</p>
+					{% endif %}
+				<!-- admin table ends -->
+
+
+
+
+				{% else %}
+
+
+
+				
+				<!-- Staff view -->
+				<!-- staff table starts here -->
+				{% if leaves_approved %}
+					<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+					  <thead>
+					    <tr>
+					      <th scope="col">PTO Type</th>
+					      <th scope="col">Start Date</th>
+					      <th scope="col">End Date</th>
+					      <th scope="col">Return Date</th>
+					      <th scope="col">Duration (Days)</th>
+					      <th scope="col">Assigned To</th>
+					    </tr>
+					  </thead>
+					  <tbody>
+						  	{% for leave_approved in leaves_approved %}
+							    <tr class="{% if not leave_approved.is_expired_leave %}expired{% endif %}">
+							      <!-- <th scope="row">sick</th> -->
+							      <td>{{ leave_approved.leave_type }}</td>
+							      <td>{{ leave_approved.pretty_start_date }}</td>
+							      <td>{{ leave_approved.pretty_end_date }}</td>
+							      <td>  
+							      	    {{ leave_approved.return_leave_date}},
+								      	({{ leave_approved.pretty_day_leave_return}})
+								  </td>
+							      <td>{{ leave_approved.leave_duration}}</td>
+							      <td>{{ leave_approved.accepted_by.profile.get_full_name|capfirst}}</td>
+							    </tr>
+						    {% endfor %}
+					  </tbody>
+					</table>
+				{% else %}
+				    <p>You have no approved PTOs.</p>
+				{% endif %}
+
+				{% endif %}
+			<!-- table ends -->
+		</div>
+	</div>
+</div>
+
+<!-- /table card wrapper -->
+{% endblock %}
+<!-- /Section Page Ends -->

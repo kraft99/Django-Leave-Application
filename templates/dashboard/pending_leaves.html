@@ -1,0 +1,133 @@
+{% extends 'dashboard/base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% load humanize %}
+
+{% load thumbnail %}
+
+
+<!-- Section Page -->
+{% block style %}
+	<style type="text/css">
+
+		 .table-bordered td.red_color{
+		 	color:red !important;
+		}
+
+	</style>
+{% endblock %}
+
+
+{% block message %}
+           <section class="col-xl-12 col-lg-12 mb-2">
+                          {% if  messages %}
+                                  {% for message in messages %}
+                                     <div {% if message.tags %} class="{{ message.tags}} mssg-default"{% endif %}>
+                                         {{ message }}
+                                     </div>
+                                   {% endfor %}
+                          {% endif %}
+           </section>
+ {% endblock %}
+
+{% block card %}
+
+<div class="card shadow mb-4  col-lg-12 col-xl-12 col-md-12">
+	<div class="card-header py-3">
+		<h6 class="m-0 font-weight-bold text-primary">Pending(Unapproved) PTOs</h6>
+	</div>
+	<div class="card-body">
+		<div class="table-responsive">
+				<!-- admin table starts -->
+				{% if request.user.is_superuser %}
+				<!-- Admin view -->
+					{% if pending_leaves %}
+						<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+						  <thead>
+						    <tr>
+						      <th scope="col">PTO Type</th>
+						      <th scope="col">Owner</th>
+						      <th scope="col">Assigned To</th>
+						      <th scope="col">Start Date</th>
+						      <th scope="col">End Date</th>
+						      <th scope="col">Duration(Days)</th>
+						      <th scope="col">Status</th>
+						      <th scope="col">Actions</th>
+						    </tr>
+						  </thead>
+						  <tbody>
+						  	{% for pending_leave in pending_leaves %}
+						    <tr>
+						      <td scope="row">
+						      	<a href="#">{{ pending_leave.leave_type }}
+						      	</a>
+						      </td>
+						      <td>{{ pending_leave.owner.get_full_name|capfirst }}</td>
+						      <td>{{ pending_leave.accepted_by.profile.get_full_name|capfirst }}</td>
+						      <td>{{ pending_leave.pretty_start_date }}</td>
+						      <td>{{ pending_leave.pretty_end_date }}</td>
+						      <td>{{ pending_leave.leave_duration }}</td>
+						      <td class="red_color">{{ pending_leave.status }}</td>
+						      <td>
+						      	<a href="{% url 'leave:pending_leave' pending_leave.id %}" title="view leave"><i class="fa fa-eye"></i></a> 
+						      </td>
+
+						    </tr>
+						    {% endfor %}
+						  </tbody>
+						</table>
+						{% else %}
+							<p>No pending PTOs.</p>
+						{% endif %}
+					<!-- admin table ends -->
+					{% else %}
+					<!-- Staff view -->
+					<!-- staff table starts here -->
+					{% if pending_leaves %}
+						<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+						  <thead>
+						    <tr>
+						      <th scope="col">PTO Type</th>
+						      <th scope="col">Start Date</th>
+						      <th scope="col">End Date</th>
+						      <th scope="col">Duration (Days)</th>
+						      <th scope="col">Assigned To</th>
+						      <th scope="col">Return date</th>
+						      <th scope="col">Status</th>
+						    </tr>
+						  </thead>
+						  <tbody>
+							  	{% for pending_leave in pending_leaves %}
+								    <tr>
+								      <!-- <th scope="row">sick</th> -->
+								      <td>{{ pending_leave.leave_type }}</td>
+								      <td>{{ pending_leave.pretty_start_date }}</td>
+								      <td>{{ pending_leave.pretty_end_date }}</td>
+								      <td>{{ pending_leave.leave_duration}}</td>
+								      <td>{{ pending_leave.accepted_by.profile.get_full_name|capfirst}}</td>
+								      <td>{{ pending_leave.return_leave_date}},
+								      	({{ pending_leave.pretty_day_leave_return}})
+								      </td>
+								      <td class="red_color">
+								      	{{ pending_leave.status }}
+								      	
+								      </td>
+								    </tr>
+							    {% endfor %}
+						  </tbody>
+						</table>
+					{% else %}
+					    <p>You have no pending PTOs.</p>
+					{% endif %}
+
+				{% endif %}
+			<!-- table ends -->
+		</div>
+	</div>
+</div>
+
+
+{% endblock %}

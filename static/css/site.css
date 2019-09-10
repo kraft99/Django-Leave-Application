@@ -1,0 +1,43 @@
+
+h1.text-gray-900 > span.edify-title{
+	font-size: 2.6rem;
+    font-weight: 100;
+    color: #40cc84;
+    -webkit-font-smoothing: auto;
+}
+
+h1.text-gray-900 span.lv-title{
+	font-weight: 200;
+    color: #ada8a8;
+    -webkit-font-smoothing: subpixel-antialiased;
+    vertical-align: -webkit-baseline-middle !important;
+}
+
+span.edify-title{
+	font-size: 2.6rem;
+    font-weight: 100;
+    color: #45a473;
+    -webkit-font-smoothing: auto;
+}
+
+input{
+    border-radius:2px !important;
+}
+
+/*Flash Messages Styles*/
+.mssg-default{
+    padding: 1.2rem !important;
+    font-size:1.22rem !important;
+    width: auto !important;
+    color: #fff !important;
+}
+
+.error{
+    background-color: #f2434d !important;
+}
+
+.success{
+    background-color: #89b53f !important;
+}
+
+

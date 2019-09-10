@@ -1,0 +1,133 @@
+{% extends 'dashboard/base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% load humanize %}
+
+{% load thumbnail %}
+
+{% block style %}
+<style type="text/css">
+	
+div,span,p{
+	font-variant: petite-caps;
+	font-weight: 400;
+}
+
+p.days_remain > span{
+	font-size: 1.5555em;
+	font-weight: bolder;
+	color: #565656;
+    vertical-align: text-bottom;
+
+}
+
+
+</style>
+{% endblock %}
+
+
+<!-- message alert -->
+{% block message %}
+           <section class="col-xl-6 col-lg-6 col-sm-12 mb-2">
+                        {% if  messages %}
+                                 {% for message in messages %}
+                                     <div {% if message.tags %} class="{{ message.tags}} mssg-default"{% endif %}>
+                                         {{ message }}
+                                     </div>
+                                 {% endfor %}
+                        {% endif %}
+           </section>
+{% endblock %}<!-- end message block -->
+
+
+{% block card %}
+			
+      	    <div class="col-xl-6 col-lg-6">
+                    <div class="card shadow mb-4">
+                        <!-- Card Header - Dropdown -->
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            {% if profile.pic %}
+				                <img class="img-profile rounded-circle icon-circle mx-auto mt-1" 
+				                            src="{{profile.pic.url}}" 
+				                            style="width:6.8rem;height: 6.8rem;"
+				                            >
+				            {% endif %}
+                        </div>
+                        <!-- Card Body -->
+                        <div class="card-body">
+	                          <div class="container-fluid">
+	                  			<div class="row"><!-- row -->
+	                  				<!-- Left -->
+	                  				{% if profile.first_name %}
+	                  				<div class="col-xl-8 col-lg-8 col-md-8 col-sm-6 pb-2">
+	                  					<span>Firstname</span> : {{profile.first_name}}
+	                  				</div>
+	                  				{% endif %}
+	                  				<!-- Right -->
+	                  				{% if profile.last_name %}
+	                  				<div class="col-xl-4 col-lg-4 col-md-4 col-sm-6">
+	                  					<span>Lastname</span> : {{ profile.last_name }}
+	                  				</div>
+	                  				{% endif %}
+	                  			</div>	<!-- /row -->
+	                  			<div class="row"><!-- row -->
+	                  				<!-- Left -->
+	                  				{% if profile.email %}
+	                  				<div class="col-xl-8 col-lg-8 col-md-8 col-sm-6 pb-2">
+	                  					<span>Email</span> : {{ profile.email }}
+	                  				</div>
+	                  				{% endif %}
+	                  				{% if profile.user.username %}
+	                  				<div class="col-xl-4 col-lg-4 col-md-4 col-sm-6">
+	                  					<span>Username</span> : {{ profile.user.username }}
+	                  				</div>
+	                  				{% endif %}
+	                  			</div>	<!-- /row -->
+	                  			<div class="row"><!-- row department-->
+	                  				<!-- Left -->
+	                  				{% if profile.department %}
+	                  				<div class="col-xl-8 col-lg-8 col-md-8 col-sm-6 pb-2">
+	                  					<span>Department </span> : {{ profile.department }}
+	                  				</div>
+	                  				{% endif %}
+	                  				{% if profile.is_head %}
+	                  				<div class="col-xl-4 col-lg-4 col-md-4 col-sm-6">
+	                  					<span style="color: green;font-weight: bold;">Head of Department</span>
+	                  				</div>
+	                  				{% endif %}
+	                  			</div>	<!-- /row -->
+	                  			{% if not profile.user.is_superuser %}
+	                  			<div class="row">
+	                  				<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center">
+	                  					<p class="days_remain"><span>{{profile.pretty_leave_ratio}}</span> Leave Days</p>
+	                  				</div>
+	                  			</div>
+	                  			{% endif %}
+	                  		</div>
+                        </div>
+                    </div>
+            </div>
+
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
+                    <div class="card shadow mb-4">
+                        <!-- Card Header - Dropdown -->
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                          <h6 class="m-0 font-weight-bold text-primary">Edit Form</h6>
+                        </div>
+                        <!-- Card Body -->
+                        <div class="card-body">
+                  					<form action="." method="POST" enctype="multipart/form-data">
+                              		  {% csrf_token %}
+                  					  {{ u_form | crispy }}
+                  					  {{ p_form | crispy }}
+                  					  <button type="submit" class="btn btn-primary">Edit & Save</button>
+                  					</form>
+                        </div>
+                    </div>
+            </div>
+
+
+{% endblock %}

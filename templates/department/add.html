@@ -1,0 +1,85 @@
+{% extends 'dashboard/base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% load humanize %}
+
+<style type="text/css">
+  p,span{
+  font-variant: petite-caps;
+  font-weight: 400;
+}
+
+
+</style>
+
+
+   {% block message %}
+           <section class="col-xl-6 col-lg-6 col-md-6  col-sm-12 mb-2">
+                            {% if  messages %}
+                                    {% for message in messages %}
+                                     <div {% if message.tags %} class="{{ message.tags}} mssg-default"{% endif %}>
+                                         {{ message }}
+                                     </div>
+                                    {% endfor %}
+                            {% endif %}
+           </section>
+   {% endblock %}<!-- end message block -->
+
+	 {% block card %}
+      	 		 <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                    <div class="card shadow mb-4">
+                        <!-- Card Header - Dropdown -->
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                          <h6 class="m-0 font-weight-bold text-primary">Department Form</h6>
+                        </div>
+                        <!-- Card Body -->
+                        <div class="card-body">
+                  					<form action="{% url 'department:department_add' %}" method="POST" id="leave_create_form">
+                              		  {% csrf_token %}
+                  					  {{ form | crispy }}
+                  					  <button type="submit" class="btn btn-primary">Add</button>
+                  					</form>
+                        </div>
+                    </div>
+           		 </div>
+            <!-- Recent Sent Leave(Not yet accepted) -->
+      	 		<div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+	              		 <div class="card shadow mb-4">
+	                 		<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+	                          <h6 class="m-0 font-weight-light"><span>Existing Departments</span></h6>
+	                 		</div>
+	                 <div class="card-body">
+
+	                   {% if departments %}
+	                      {% for department in departments %}
+	                        <nav aria-label="breadcrumb">
+	                          <ol class="breadcrumb">
+	                            <p class="">
+	                             <b>{{department.name}}</b>
+                               {% if department.description %},<i>description:{{department.description}}{% endif %}</i>
+	                            </p>
+	                          </ol>
+                            <form action="{% url 'department:delete_edit' department.pk %}" method="POST" class="mb-4">
+                              {% csrf_token %}
+                              <button class="btn btn-danger" name="delete" type="submit" onclick="return confirm_delete()">
+                                <i class="fa fa-trash"></i>
+                              </button>
+                           <!--    <button class="btn btn-info" name="edit" onclick="return confirm_delete()">
+                                <i class="fa fa-pencil-alt"></i>
+                              </button> -->
+                            </form>
+	                          <p style="font-size: 12px;">{{departments.created | naturaltime }}</p>
+	                        </nav>
+	                      {% endfor %}
+	                      {% else %}
+	                       <span style="font-weight: 100;color:#666;">No Departments</span>
+	                    {% endif %}
+
+	                 </div>
+	               </div>
+             </div>
+
+	 {% endblock %}
